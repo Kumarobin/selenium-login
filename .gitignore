@@ -1,0 +1,8 @@
+target/
+screenshots/
+*.class
+*.log
+*.swp
+*.swo
+.idea/
+.vscode/
