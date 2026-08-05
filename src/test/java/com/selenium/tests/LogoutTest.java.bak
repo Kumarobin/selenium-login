@@ -1,0 +1,67 @@
+package com.selenium.tests;
+
+import com.selenium.pages.LoginPage;
+import com.selenium.pages.SecurePage;
+import com.selenium.utils.DriverFactory;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.WebDriver;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+public class LogoutTest {
+
+    @Test
+    public void logoutTest() throws Exception {
+
+        WebDriver driver = DriverFactory.getDriver();
+
+        Properties config = new Properties();
+
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+
+            if (input == null) {
+                throw new RuntimeException("config.properties not found");
+            }
+
+            config.load(input);
+        }
+
+        LoginPage loginPage = new LoginPage(driver);
+        SecurePage securePage = new SecurePage(driver);
+
+        try {
+
+            System.out.println("========== LOGOUT TEST START ==========");
+
+            loginPage.openWebsite();
+
+            loginPage.login(
+                    config.getProperty("username"),
+                    config.getProperty("password")
+            );
+
+            Assertions.assertTrue(
+                    securePage.isDashboardDisplayed(),
+                    "Dashboard is not displayed"
+            );
+
+            securePage.logout();
+
+            Assertions.assertTrue(
+                    loginPage.getCurrentUrl().contains("/login"),
+                    "Logout failed"
+            );
+
+            System.out.println("Logout Verification Passed");
+
+            System.out.println("========== LOGOUT TEST END ==========");
+
+        } finally {
+
+            driver.quit();
+
+        }
+    }
+}
