@@ -17,7 +17,7 @@ pipeline {
 
         stage('Selenium Test') {
             steps {
-                sh 'mvn test'
+                sh 'mvn clean verify'
             }
         }
     }
