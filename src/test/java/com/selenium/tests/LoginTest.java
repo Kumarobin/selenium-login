@@ -31,11 +31,9 @@ public class LoginTest extends BaseTest {
             config.load(input);
         }
 
-        // Read credentials from Jenkins first
         String username = System.getProperty("username");
         String password = System.getProperty("password");
 
-        // If Jenkins credentials are not available, use config.properties
         if (username == null || username.isBlank()) {
             username = config.getProperty("username");
         }
@@ -53,25 +51,24 @@ public class LoginTest extends BaseTest {
         loginPage.openWebsite();
         System.out.println("Website Opened");
 
-        // Debug
         System.out.println("Username : " + username);
         System.out.println("Password Length : " + password.length());
 
         loginPage.login(username, password);
 
+        // Save page source immediately after login
+        Files.writeString(
+                Path.of("page-source-after-login.html"),
+                driver.getPageSource()
+        );
+
+        System.out.println("Saved page-source-after-login.html");
+
         System.out.println("Login Completed");
 
         System.out.println("Current URL : " + driver.getCurrentUrl());
         System.out.println("Page Title : " + driver.getTitle());
-
         System.out.println("Page Source Length : " + driver.getPageSource().length());
-
-        Files.writeString(
-                Path.of("page-source.html"),
-                driver.getPageSource()
-        );
-
-        System.out.println("Page source saved to page-source.html");
 
         if (securePage.isDashboardDisplayed()) {
             System.out.println("Dashboard Loaded");
