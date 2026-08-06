@@ -31,23 +31,39 @@ public class LoginTest extends BaseTest {
             config.load(input);
         }
 
+        // Read credentials from Jenkins first
+        String username = System.getProperty("username");
+        String password = System.getProperty("password");
+
+        // If Jenkins credentials are not available, use config.properties
+        if (username == null || username.isBlank()) {
+            username = config.getProperty("username");
+        }
+
+        if (password == null || password.isBlank()) {
+            password = config.getProperty("password");
+        }
+
         LoginPage loginPage = new LoginPage(driver);
         SecurePage securePage = new SecurePage(driver);
 
         System.out.println("========== TEST START ==========");
+        System.out.println("Opening URL : " + config.getProperty("base.url"));
 
         loginPage.openWebsite();
         System.out.println("Website Opened");
 
-        loginPage.login(
-                config.getProperty("username"),
-                config.getProperty("password")
-        );
+        // Debug
+        System.out.println("Username : " + username);
+        System.out.println("Password Length : " + password.length());
+
+        loginPage.login(username, password);
 
         System.out.println("Login Completed");
 
         System.out.println("Current URL : " + driver.getCurrentUrl());
         System.out.println("Page Title : " + driver.getTitle());
+
         System.out.println("Page Source Length : " + driver.getPageSource().length());
 
         Files.writeString(
@@ -57,6 +73,14 @@ public class LoginTest extends BaseTest {
 
         System.out.println("Page source saved to page-source.html");
 
+        if (securePage.isDashboardDisplayed()) {
+            System.out.println("Dashboard Loaded");
+        } else {
+            System.out.println("Dashboard NOT Loaded");
+            System.out.println("After Login URL : " + driver.getCurrentUrl());
+            System.out.println("After Login Title : " + driver.getTitle());
+        }
+
         Assertions.assertTrue(
                 securePage.isDashboardDisplayed(),
                 "Dashboard is not displayed"
@@ -64,10 +88,8 @@ public class LoginTest extends BaseTest {
 
         System.out.println("Dashboard Verification Passed");
 
-        System.out.println(
-                "Welcome Message : "
-                        + securePage.getWelcomeMessage()
-        );
+        System.out.println("Welcome Message : "
+                + securePage.getWelcomeMessage());
 
         File src = ((TakesScreenshot) driver)
                 .getScreenshotAs(OutputType.FILE);
